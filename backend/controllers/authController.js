@@ -42,7 +42,7 @@ export const register = async (req, res) => {
       await transporter.sendMail(mailOptions)
     res
       .status(201)
-      .json({ message: "User registered successfully", data: newUser });
+      .json({ success:true, message: "User registered successfully", data: newUser });
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
@@ -86,7 +86,7 @@ export const logout = (req, res) => {
       sameSite: process.env.NODE_ENV === "production" ? "None" : "strict",
     });
 
-    res.status(200).json({ message: "Logout successful" });
+    res.status(200).json({ success:true,message: "Logout successful" });
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
@@ -94,7 +94,7 @@ export const logout = (req, res) => {
 
 export const sendVerifyOtp = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const userId = req.userId;
     const user = await User.findById(userId);
     if (!user) {
       return res
