@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import authRouter from "./routes/authRoutes.js"
 import cors from "cors";
+import userRouter from "./routes/userRoutes.js";
 dotenv.config();
 
 const app = express();
@@ -29,6 +30,7 @@ app.get("/", (req, res) => {
   res.send("API is running in realtime");
 });
 app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
 
 const startServer = async () => {
   await connectDB();
