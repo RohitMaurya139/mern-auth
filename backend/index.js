@@ -10,6 +10,7 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 const allowedOrigins = [
+  "https://mern-auth-sable-five.vercel.app",
   "http://localhost:5173",
   "http://localhost:5174",
 ];
