@@ -5,6 +5,9 @@ import cookieParser from "cookie-parser";
 import authRouter from "./routes/authRoutes.js"
 import cors from "cors";
 import userRouter from "./routes/userRoutes.js";
+import debugRouter from "./routes/debug.js";
+
+
 dotenv.config();
 
 const app = express();
@@ -30,6 +33,7 @@ app.use(cookieParser());
 app.get("/", (req, res) => {
   res.send("API is running in realtime");
 });
+app.use(debugRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 
