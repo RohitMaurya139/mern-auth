@@ -1,41 +1,32 @@
-import React, { useRef, useContext, useEffect } from "react";
+import React, { useRef, useContext, useEffect, useState } from "react";
 import { assets } from "../assets/assets";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { AppContext } from "../context/AppContext"; // <-- import context
-import { toast } from "react-toastify"; // <-- import toast
+import { AppContext } from "../context/AppContext";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const EmailVerify = () => {
   const inputRefs = useRef([]);
   const navigate = useNavigate();
-  const {
-    backendUrl,
-    isLoggedin,
-    setIsloggedin,
-    getUserData,
-    userData,
-    setUserData,
-  } = useContext(AppContext);
-const [loading, setLoading] = useState(false);
+  const { backendUrl, isLoggedin, setIsloggedin, getUserData, userData } =
+    useContext(AppContext);
+  const [loading, setLoading] = useState(false);
 
-  const handelInput = (e, index) => {
+  const handleInput = (e, index) => {
     if (e.target.value.length > 0 && index < inputRefs.current.length - 1) {
       inputRefs.current[index + 1].focus();
     }
   };
 
-  const handelPaste = (e) => {
+  const handlePaste = (e) => {
     const paste = e.clipboardData.getData("text");
-    const pasteArray = paste.split("");
-    pasteArray.forEach((char, index) => {
-      if (inputRefs.current[index]) {
-        inputRefs.current[index].value = char;
-      }
+    paste.split("").forEach((char, index) => {
+      if (inputRefs.current[index]) inputRefs.current[index].value = char;
     });
   };
 
-  const handelKeyDown = (e, index) => {
+  const handleKeyDown = (e, index) => {
     if (e.key === "Backspace" && e.target.value === "" && index > 0) {
       inputRefs.current[index - 1].focus();
     }
@@ -44,14 +35,15 @@ const [loading, setLoading] = useState(false);
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     try {
-      const otpArray = inputRefs.current.map((input) => input.value);
-      const otp = otpArray.join("");
-      setLoading(true)
+      const otp = inputRefs.current.map((input) => input.value).join("");
+      setLoading(true);
+
       const res = await axios.post(
         backendUrl + "/api/auth/verify-account",
         { otp, userId: userData._id },
         { withCredentials: true }
       );
+
       if (res.data.success) {
         toast.success(res.data.message, {
           position: "top-right",
@@ -61,7 +53,12 @@ const [loading, setLoading] = useState(false);
         setIsloggedin(true);
         await getUserData();
         navigate("/");
-        setLoading(false);
+      } else {
+        toast.error(res.data.message || "Verification failed!", {
+          position: "top-right",
+          autoClose: 2000,
+          theme: "colored",
+        });
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong!", {
@@ -69,11 +66,17 @@ const [loading, setLoading] = useState(false);
         autoClose: 2000,
         theme: "colored",
       });
+    } finally {
+      setLoading(false);
     }
   };
+
   useEffect(() => {
-  isLoggedin && userData && userData.isAccountVerified&& navigate("/")
-},[isLoggedin,userData])
+    if (isLoggedin && userData?.isAccountVerified) {
+      navigate("/");
+    }
+  }, [isLoggedin, userData, navigate]);
+
   return (
     <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-gradient-to-br from-blue-200 to-purple-400">
       <img
@@ -92,7 +95,7 @@ const [loading, setLoading] = useState(false);
         <p className="text-center mb-6 text-indigo-300">
           Enter the 6-digit code sent to your Email ID
         </p>
-        <div className="flex justify-between mb-8" onPaste={handelPaste}>
+        <div className="flex justify-between mb-8" onPaste={handlePaste}>
           {Array(6)
             .fill(0)
             .map((_, index) => (
@@ -103,13 +106,21 @@ const [loading, setLoading] = useState(false);
                 required
                 className="w-12 h-12 bg-[#333A5C] text-white text-center text-xl rounded-md"
                 ref={(el) => (inputRefs.current[index] = el)}
-                onInput={(e) => handelInput(e, index)}
-                onKeyDown={(e) => handelKeyDown(e, index)}
+                onInput={(e) => handleInput(e, index)}
+                onKeyDown={(e) => handleKeyDown(e, index)}
               />
             ))}
         </div>
-        <button className="w-full py-3 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full cursor-pointer">
-          {loading ? "Sending.." : "Verify Email"}
+        <button
+          type="submit"
+          disabled={loading}
+          className={`w-full py-3 rounded-full text-white ${
+            loading
+              ? "bg-gray-500 cursor-not-allowed"
+              : "bg-gradient-to-r from-indigo-500 to-indigo-900"
+          }`}
+        >
+          {loading ? "Verifying..." : "Verify Email"}
         </button>
       </form>
     </div>

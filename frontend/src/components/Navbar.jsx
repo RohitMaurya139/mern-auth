@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { assets } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
@@ -16,29 +16,39 @@ const Navbar = () => {
     userData,
     setUserData,
   } = useContext(AppContext);
-const[loading,setLoading]=useState(false)
+
+  const [loading, setLoading] = useState(false);
+
   const sendVerificationOtp = async () => {
     try {
-        setLoading(true)
-        const res = await axios.post(
-          backendUrl + "/api/auth/send-verify-otp",
-          {},
-          { withCredentials: true }
-        );
-        if (res.data.success) {
-         
-          navigate("/email-verify");
-          toast.success(res.data.message, { position: "top-right" });
-          setLoading(false)
-        } 
-      } catch (error) {
-        toast.error(error.response?.data?.message || "Something went wrong!", {
+      setLoading(true);
+      const res = await axios.post(
+        backendUrl + "/api/auth/send-verify-otp",
+        {},
+        { withCredentials: true }
+      );
+
+      if (res.data.success) {
+        toast.success(res.data.message, { position: "top-right" });
+        navigate("/email-verify");
+      } else {
+        toast.error(res.data.message || "Failed to send OTP", {
           position: "top-right",
           autoClose: 2000,
           theme: "colored",
         });
       }
-  }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong!", {
+        position: "top-right",
+        autoClose: 2000,
+        theme: "colored",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = async () => {
     try {
       const res = await axios.post(
@@ -71,8 +81,13 @@ const[loading,setLoading]=useState(false)
           <div className="absolute hidden group-hover:block top-0 right-0 z-10 text-black rounded pt-10 w-fit">
             <ul className="list-none m-0 p-2 bg-gray-100 text-sm">
               {!userData.isAccountVerified && (
-                <li onClick={sendVerificationOtp} className="py-1 px-2 hover:bg-gray-200 cursor-pointer">
-                  {loading ?"Sending..":"Verify Email"}
+                <li
+                  onClick={loading ? null : sendVerificationOtp}
+                  className={`py-1 px-2 hover:bg-gray-200 cursor-pointer ${
+                    loading ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
+                >
+                  {loading ? "Sending..." : "Verify Email"}
                 </li>
               )}
               <li

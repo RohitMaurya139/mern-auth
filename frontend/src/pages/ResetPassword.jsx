@@ -13,7 +13,7 @@ const ResetPassword = () => {
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [isOtpSubmited, setIsOtpSubmited] = useState(false);
   const [otp, setOtp] = useState("");
-const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const { backendUrl } = useContext(AppContext);
   const inputRefs = useRef([]);
@@ -37,15 +37,17 @@ const [loading, setLoading] = useState(false);
     }
   };
 
+  // ---------- STEP 1: Submit Email ----------
   const onSubmitEmail = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      setLoading(true)
       const res = await axios.post(
         backendUrl + "/api/auth/send-reset-otp",
         { email },
         { withCredentials: true }
       );
+
       if (res.data.success) {
         toast.success(res.data.message, {
           position: "top-right",
@@ -53,7 +55,12 @@ const [loading, setLoading] = useState(false);
           theme: "colored",
         });
         setIsEmailSent(true);
-        setLoading(false);
+      } else {
+        toast.error(res.data.message || "Failed to send OTP!", {
+          position: "top-right",
+          autoClose: 2000,
+          theme: "colored",
+        });
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong!", {
@@ -61,25 +68,35 @@ const [loading, setLoading] = useState(false);
         autoClose: 2000,
         theme: "colored",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
+  // ---------- STEP 2: Submit OTP ----------
   const onSubmitOtp = async (e) => {
     e.preventDefault();
-    const otpValue = inputRefs.current.map((input) => input.value).join("");
-    setOtp(otpValue);
-    setIsOtpSubmited(true);
+    setLoading(true);
+    try {
+      const otpValue = inputRefs.current.map((input) => input.value).join("");
+      setOtp(otpValue);
+      setIsOtpSubmited(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // ---------- STEP 3: Submit New Password ----------
   const onSubmitNewPassword = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      setLoading(true)
       const res = await axios.post(
         backendUrl + "/api/auth/reset-password",
         { email, otp, newPassword },
         { withCredentials: true }
       );
+
       if (res.data.success) {
         toast.success(res.data.message, {
           position: "top-right",
@@ -87,7 +104,12 @@ const [loading, setLoading] = useState(false);
           theme: "colored",
         });
         navigate("/login");
-        setLoading(false)
+      } else {
+        toast.error(res.data.message || "Failed to reset password!", {
+          position: "top-right",
+          autoClose: 2000,
+          theme: "colored",
+        });
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong!", {
@@ -95,9 +117,12 @@ const [loading, setLoading] = useState(false);
         autoClose: 2000,
         theme: "colored",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
+  // ---------- UI ----------
   return (
     <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-gradient-to-br from-blue-200 to-purple-400">
       <img
@@ -107,6 +132,7 @@ const [loading, setLoading] = useState(false);
         className="absolute left-5 sm:left-20 top-5 w-28 sm:w-32 cursor-pointer"
       />
 
+      {/* STEP 1: Enter Email */}
       {!isEmailSent && (
         <form
           onSubmit={onSubmitEmail}
@@ -131,13 +157,43 @@ const [loading, setLoading] = useState(false);
           </div>
           <button
             type="submit"
-            className="w-full py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full cursor-pointer"
+            disabled={loading}
+            className={`w-full py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full cursor-pointer ${
+              loading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
-            {loading ? "Sending" : "Send Reset Link"}
+            {loading ? (
+              <span className="flex justify-center items-center gap-2">
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8z"
+                  ></path>
+                </svg>
+                Sending...
+              </span>
+            ) : (
+              "Send Reset Link"
+            )}
           </button>
         </form>
       )}
 
+      {/* STEP 2: Enter OTP */}
       {isEmailSent && !isOtpSubmited && (
         <form
           onSubmit={onSubmitOtp}
@@ -167,13 +223,17 @@ const [loading, setLoading] = useState(false);
           </div>
           <button
             type="submit"
-            className="w-full py-3 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full cursor-pointer"
+            disabled={loading}
+            className={`w-full py-3 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full cursor-pointer ${
+              loading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
             {loading ? "Submitting..." : "Submit"}
           </button>
         </form>
       )}
 
+      {/* STEP 3: Enter New Password */}
       {isOtpSubmited && (
         <form
           onSubmit={onSubmitNewPassword}
@@ -198,9 +258,38 @@ const [loading, setLoading] = useState(false);
           </div>
           <button
             type="submit"
-            className="w-full py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full cursor-pointer"
+            disabled={loading}
+            className={`w-full py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full cursor-pointer ${
+              loading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
-            {loading ? "Submitting..." : "Submit"}
+            {loading ? (
+              <span className="flex justify-center items-center gap-2">
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8z"
+                  ></path>
+                </svg>
+                Submitting...
+              </span>
+            ) : (
+              "Submit"
+            )}
           </button>
         </form>
       )}
