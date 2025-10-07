@@ -11,11 +11,15 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
   const { backendUrl, setIsloggedin, getUserData } = useContext(AppContext);
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     try {
+
       if (state === "Sign Up") {
+        setLoading(true)
         const res = await axios.post(
           backendUrl + "/api/auth/register",
           { name, email, password },
@@ -31,9 +35,10 @@ const Login = () => {
            setIsloggedin(true);
            await getUserData();
            navigate("/");
-
+            setLoading(false);
         }
       } else {
+        setLoading(true)
         const res = await axios.post(
           backendUrl + "/api/auth/login",
           { email, password },
@@ -48,7 +53,8 @@ const Login = () => {
           });
         setIsloggedin(true);
         await getUserData();
-        navigate("/");
+          navigate("/");
+          setLoading(false)
 
         }
       }
@@ -122,7 +128,7 @@ const Login = () => {
             Forgot Password
           </p>
           <button className="w-full py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-900 font-medium text-white cursor-pointer">
-            {state}
+           {loading?"....": {state}}
           </button>
         </form>
         {state === "Sign Up" ? (

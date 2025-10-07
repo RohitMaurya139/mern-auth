@@ -13,6 +13,7 @@ const ResetPassword = () => {
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [isOtpSubmited, setIsOtpSubmited] = useState(false);
   const [otp, setOtp] = useState("");
+const [loading, setLoading] = useState(false);
 
   const { backendUrl } = useContext(AppContext);
   const inputRefs = useRef([]);
@@ -39,6 +40,7 @@ const ResetPassword = () => {
   const onSubmitEmail = async (e) => {
     e.preventDefault();
     try {
+      setLoading(true)
       const res = await axios.post(
         backendUrl + "/api/auth/send-reset-otp",
         { email },
@@ -51,6 +53,7 @@ const ResetPassword = () => {
           theme: "colored",
         });
         setIsEmailSent(true);
+        setLoading(false);
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong!", {
@@ -71,6 +74,7 @@ const ResetPassword = () => {
   const onSubmitNewPassword = async (e) => {
     e.preventDefault();
     try {
+      setLoading(true)
       const res = await axios.post(
         backendUrl + "/api/auth/reset-password",
         { email, otp, newPassword },
@@ -83,6 +87,7 @@ const ResetPassword = () => {
           theme: "colored",
         });
         navigate("/login");
+        setLoading(false)
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong!", {
@@ -128,7 +133,7 @@ const ResetPassword = () => {
             type="submit"
             className="w-full py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full cursor-pointer"
           >
-            Send Reset Link
+            {loading ? "Sending" : "Send Reset Link"}
           </button>
         </form>
       )}
@@ -164,7 +169,7 @@ const ResetPassword = () => {
             type="submit"
             className="w-full py-3 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full cursor-pointer"
           >
-            Submit
+            {loading ? "Submitting..." : "Submit"}
           </button>
         </form>
       )}
@@ -195,7 +200,7 @@ const ResetPassword = () => {
             type="submit"
             className="w-full py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full cursor-pointer"
           >
-            Submit
+            {loading ? "Submitting..." : "Submit"}
           </button>
         </form>
       )}

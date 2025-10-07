@@ -17,6 +17,7 @@ const EmailVerify = () => {
     userData,
     setUserData,
   } = useContext(AppContext);
+const [loading, setLoading] = useState(false);
 
   const handelInput = (e, index) => {
     if (e.target.value.length > 0 && index < inputRefs.current.length - 1) {
@@ -45,6 +46,7 @@ const EmailVerify = () => {
     try {
       const otpArray = inputRefs.current.map((input) => input.value);
       const otp = otpArray.join("");
+      setLoading(true)
       const res = await axios.post(
         backendUrl + "/api/auth/verify-account",
         { otp, userId: userData._id },
@@ -59,6 +61,7 @@ const EmailVerify = () => {
         setIsloggedin(true);
         await getUserData();
         navigate("/");
+        setLoading(false);
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong!", {
@@ -81,7 +84,7 @@ const EmailVerify = () => {
       />
       <form
         className="bg-slate-900 p-8 rounded-lg shadow-lg w-96 text-sm"
-        onSubmit={onSubmitHandler} 
+        onSubmit={onSubmitHandler}
       >
         <h1 className="text-white text-2xl font-semibold text-center mb-4">
           Email Verify OTP
@@ -106,7 +109,7 @@ const EmailVerify = () => {
             ))}
         </div>
         <button className="w-full py-3 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full cursor-pointer">
-          Verify Email
+          {loading ? "Sending.." : "Verify Email"}
         </button>
       </form>
     </div>

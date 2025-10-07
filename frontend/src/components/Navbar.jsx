@@ -16,9 +16,10 @@ const Navbar = () => {
     userData,
     setUserData,
   } = useContext(AppContext);
-
+const[loading,setLoading]=useState(false)
   const sendVerificationOtp = async () => {
-      try {
+    try {
+        setLoading(true)
         const res = await axios.post(
           backendUrl + "/api/auth/send-verify-otp",
           {},
@@ -28,6 +29,7 @@ const Navbar = () => {
          
           navigate("/email-verify");
           toast.success(res.data.message, { position: "top-right" });
+          setLoading(false)
         } 
       } catch (error) {
         toast.error(error.response?.data?.message || "Something went wrong!", {
@@ -70,7 +72,7 @@ const Navbar = () => {
             <ul className="list-none m-0 p-2 bg-gray-100 text-sm">
               {!userData.isAccountVerified && (
                 <li onClick={sendVerificationOtp} className="py-1 px-2 hover:bg-gray-200 cursor-pointer">
-                  Verify Email
+                  {loading ?"Sending..":"Verify Email"}
                 </li>
               )}
               <li
