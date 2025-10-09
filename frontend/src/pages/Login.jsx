@@ -76,19 +76,23 @@ const Login = () => {
         theme: "colored",
       });
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
-
+  
   return (
-    <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-gradient-to-br from-blue-200 to-purple-400">
+    <div className='flex items-center justify-center min-h-screen px-6 sm:px-0 bg-[url("/bg_img.png")]'>
       <img
         onClick={() => navigate("/")}
         src={assets.logo}
         alt="logo"
         className="absolute left-5 sm:left-20 top-5 w-28 sm:w-32 cursor-pointer"
       />
-
+      {state === "Sign Up" && (
+        <div>
+          <img src="signupImg.jpg" alt="" className="w-110 h-110 mr-10" />
+        </div>
+      )}
       <div className="bg-slate-900 p-10 rounded-lg shadow-lg w-full sm:w-96 text-indigo-300 text-sm">
         <h2 className="text-3xl font-semibold text-white text-center mb-3">
           {state === "Sign Up" ? "Create account" : "Login"}
@@ -180,6 +184,11 @@ const Login = () => {
           </p>
         )}
       </div>
+      {state !== "Sign Up" && (
+        <div>
+          <img src="loginImg.jpg" alt="" className="w-100 h-100 ml-10"  />
+        </div>
+      )}
     </div>
   );
 };

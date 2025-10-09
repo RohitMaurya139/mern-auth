@@ -124,7 +124,7 @@ const ResetPassword = () => {
 
   // ---------- UI ----------
   return (
-    <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-gradient-to-br from-blue-200 to-purple-400">
+    <div className='flex items-center justify-center min-h-screen px-6 sm:px-0 bg-[url("/bg_img.png")]'>
       <img
         onClick={() => navigate("/")}
         src={assets.logo}
