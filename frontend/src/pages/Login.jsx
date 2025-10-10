@@ -90,7 +90,11 @@ const Login = () => {
       />
       {state === "Sign Up" && (
         <div>
-          <img src="signupImg.jpg" alt="" className="w-110 h-110 mr-10" />
+          <img
+            src="signupImg.jpg"
+            alt=""
+            className="hidden sm:block w-100 h-100 ml-10"
+          />
         </div>
       )}
       <div className="bg-slate-900 p-10 rounded-lg shadow-lg w-full sm:w-96 text-indigo-300 text-sm">
@@ -186,7 +190,11 @@ const Login = () => {
       </div>
       {state !== "Sign Up" && (
         <div>
-          <img src="loginImg.jpg" alt="" className="w-100 h-100 ml-10"  />
+          <img
+            src="loginImg.jpg"
+            alt=""
+            className="hidden sm:block w-100 h-100 ml-10"
+          />
         </div>
       )}
     </div>
